@@ -14,3 +14,6 @@ Icon
 
 # Thumbnails
 ._*
+
+analyze_new_cluster.sh
+delete_old_cluster.sh
