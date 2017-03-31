@@ -4,7 +4,6 @@
 //
 //  Created by Margeaux Spring on 3/30/17.
 //
-//
 
 import Foundation
 import Vapor
