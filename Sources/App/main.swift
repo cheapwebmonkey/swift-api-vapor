@@ -1,6 +1,15 @@
 import Vapor
+import VaporPostgreSQL
+
 
 let drop = Droplet()
+drop.preparations.append(Law.self)
+
+do {
+    try drop.addProvider(VaporPostgreSQL.Provider.self)
+} catch {
+    assertionFailure("Error adding provider: \(error)")
+}
 
 drop.get { req in
     return try drop.view.make("welcome", [
@@ -8,26 +17,17 @@ drop.get { req in
     ])
 }
 
-//drop.get("laws") { req in
-//    return try JSON(node: ["laws": [
-//        ["legislator": "Sarah Thomas", "bill": "SB2", "vote": "y"],
-//        ["legislator": "Steve Burbank", "bill": "SB2", "vote": "y"],
-//        ["legislator": "Drew Hardy", "bill": "SB2", "vote": "n"]
-//        ]
-//    ])
-//}
-
 drop.get("laws") { req in
-    let laws = [
-        Law(legislator: "Sarah Hanson", bill: "SB2", vote:"y"),
-        
-        Law(legislator: "Steve Sherman", bill: "SB2", vote:"y"),
-        
-        Law(legislator: "Drew Hardy", bill: "SB2", vote:"n")
-    ]
-    let lawsNode = try laws.makeNode()
-    let nodeDictionary = ["laws": lawsNode]
-    return try JSON(node: nodeDictionary)
+    let laws = try Law.all().makeNode()
+    let lawsDictionary = ["laws": laws]
+    return try JSON(node: lawsDictionary)
+}
+
+
+drop.post("law") { req in
+    var law = try Law(node: req.json)
+    try law.save()
+    return try law.makeJSON()
 }
 
 drop.resource("posts", PostController())
