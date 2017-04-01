@@ -2,14 +2,12 @@ import Vapor
 import VaporPostgreSQL
 
 
-let drop = Droplet()
+let drop = Droplet(providers: [VaporPostgreSQL.Provider.self])
+
 drop.preparations.append(Law.self)
 
-do {
-    try drop.addProvider(VaporPostgreSQL.Provider.self)
-} catch {
-    assertionFailure("Error adding provider: \(error)")
-}
+
+let version = try drop.database?.driver.raw("SELECT version()")
 
 drop.get { req in
     return try drop.view.make("welcome", [
